@@ -31,17 +31,17 @@ Path(DOWNLOAD_DIR).mkdir(parents=True, exist_ok=True)
 def get_base_ydl_opts():
     """
     Retorna opções base do yt-dlp com configurações anti-bot
-    Usa apenas Android client para evitar bloqueios do YouTube
+    Usa TV Embedded client que geralmente funciona melhor em servidores
     """
     return {
         'quiet': False,
         'no_warnings': False,
         'extract_flat': False,
         'nocheckcertificate': True,
-        # Forçar uso do client Android (mais confiável)
+        # Forçar uso do client TV Embedded (mais confiável em servidores)
         'extractor_args': {
             'youtube': {
-                'player_client': ['android'],
+                'player_client': ['tv_embedded', 'android', 'ios'],
             }
         },
     }
