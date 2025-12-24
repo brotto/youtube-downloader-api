@@ -128,7 +128,28 @@ services:
 
 ## Integração com n8n
 
-### Exemplo de Workflow n8n
+### 🚀 Workflows Prontos para Importar
+
+Este projeto inclui **workflows completos** prontos para importar no n8n:
+
+1. **n8n-workflow.json** - Workflow completo com validações e mensagens de status
+2. **n8n-workflow-simple.json** - Workflow minimalista para uso rápido
+3. **N8N_INTEGRATION_GUIDE.md** - Guia completo de integração
+
+#### Como Importar:
+
+1. Abra o arquivo `n8n-workflow.json` ou `n8n-workflow-simple.json`
+2. Copie todo o conteúdo JSON
+3. No n8n, vá em **Workflows** → **Import from File**
+4. Cole o JSON e clique em **Import**
+5. Ajuste as URLs dos endpoints HTTP Request conforme seu ambiente
+6. Ative o workflow
+
+📖 **Guia Completo:** Consulte [N8N_INTEGRATION_GUIDE.md](N8N_INTEGRATION_GUIDE.md) para instruções detalhadas
+
+### Exemplo Manual de Workflow n8n
+
+Se preferir criar manualmente:
 
 1. **HTTP Request Node** - Para fazer download:
    - Method: POST

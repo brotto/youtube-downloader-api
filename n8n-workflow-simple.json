@@ -1,0 +1,87 @@
+{
+  "name": "YouTube Downloader - Simple",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "trigger-001",
+      "name": "Chat Trigger",
+      "type": "n8n-nodes-base.manualChatTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://youtube-downloader:5000/download",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"url\": \"{{ $json.chatInput }}\",\n  \"format\": \"best\"\n}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "download-001",
+      "name": "Download YouTube Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "text": "={{ $json.success ? '✅ Download Concluído!\\n\\n📹 ' + $json.title + '\\n👤 ' + $json.uploader + '\\n📁 ' + $json.filename : '❌ Erro: ' + $json.error }}"
+        }
+      },
+      "id": "response-001",
+      "name": "Send Response",
+      "type": "n8n-nodes-base.sendMessage",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download YouTube Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download YouTube Video": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-24T13:30:00.000Z",
+  "versionId": "1"
+}

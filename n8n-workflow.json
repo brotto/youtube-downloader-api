@@ -1,0 +1,427 @@
+{
+  "name": "YouTube Downloader Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f6b0c5e1-8c9d-4a1e-b2d3-9f8e7a6b5c4d",
+      "name": "When chat message received",
+      "type": "n8n-nodes-base.manualChatTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+              "name": "youtubeUrl",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+              "name": "format",
+              "value": "best",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+      "name": "Extract YouTube URL",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://youtube-downloader:5000/info",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.youtubeUrl }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "c3d4e5f6-a7b8-9012-3456-789abcdef012",
+      "name": "Get Video Info",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.success }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "d4e5f6a7-b8c9-0123-4567-89abcdef0123",
+      "name": "Video Info Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e5f6a7b8-c9d0-1234-5678-9abcdef01234",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "f6a7b8c9-d0e1-2345-6789-abcdef012345",
+              "name": "duration",
+              "value": "={{ $json.duration }}",
+              "type": "number"
+            },
+            {
+              "id": "a7b8c9d0-e1f2-3456-789a-bcdef0123456",
+              "name": "uploader",
+              "value": "={{ $json.uploader }}",
+              "type": "string"
+            },
+            {
+              "id": "b8c9d0e1-f2a3-4567-89ab-cdef01234567",
+              "name": "view_count",
+              "value": "={{ $json.view_count }}",
+              "type": "number"
+            },
+            {
+              "id": "c9d0e1f2-a3b4-5678-9abc-def012345678",
+              "name": "youtubeUrl",
+              "value": "={{ $('Extract YouTube URL').item.json.youtubeUrl }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e5f6a7b8-c9d0-1234-5678-9abcdef01234",
+      "name": "Prepare Video Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "text": "=📹 Vídeo Encontrado!\n\n🎬 Título: {{ $json.title }}\n👤 Canal: {{ $json.uploader }}\n⏱️ Duração: {{ Math.floor($json.duration / 60) }} minutos\n👁️ Visualizações: {{ $json.view_count.toLocaleString() }}\n\n⬇️ Iniciando download..."
+        }
+      },
+      "id": "f6a7b8c9-d0e1-2345-6789-abcdef012345",
+      "name": "Send Info Message",
+      "type": "n8n-nodes-base.sendMessage",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://youtube-downloader:5000/download",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.youtubeUrl }}"
+            },
+            {
+              "name": "format",
+              "value": "best"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "a7b8c9d0-e1f2-3456-789a-bcdef0123456",
+      "name": "Download Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1560,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.success }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "b8c9d0e1-f2a3-4567-89ab-cdef01234567",
+      "name": "Download Success?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://youtube-downloader:5000/files/{{ encodeURIComponent($json.filename) }}",
+        "authentication": "none",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "c9d0e1f2-a3b4-5678-9abc-def012345678",
+      "name": "Get Video File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "text": "=✅ Download Concluído!\n\n📁 Arquivo: {{ $('Download Video').item.json.filename }}\n📊 Tamanho: {{ ($('Download Video').item.json.filepath ? 'Disponível' : 'N/A') }}\n\nO vídeo foi baixado com sucesso!"
+        }
+      },
+      "id": "d0e1f2a3-b4c5-6789-abcd-ef0123456789",
+      "name": "Send Success Message",
+      "type": "n8n-nodes-base.sendMessage",
+      "typeVersion": 1,
+      "position": [
+        2220,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "text": "=❌ Erro no Download\n\n{{ $json.error || 'Não foi possível baixar o vídeo. Tente novamente.' }}"
+        }
+      },
+      "id": "e1f2a3b4-c5d6-789a-bcde-f01234567890",
+      "name": "Send Download Error",
+      "type": "n8n-nodes-base.sendMessage",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "text": "=❌ Vídeo Não Encontrado\n\nNão foi possível obter informações do vídeo. Verifique se o link está correto.\n\nErro: {{ $json.error || 'Link inválido' }}"
+        }
+      },
+      "id": "f2a3b4c5-d6e7-89ab-cdef-012345678901",
+      "name": "Send Info Error",
+      "type": "n8n-nodes-base.sendMessage",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=http://youtube-downloader:5000/files/{{ encodeURIComponent($('Download Video').item.json.filename) }}",
+        "authentication": "none",
+        "options": {}
+      },
+      "id": "a3b4c5d6-e7f8-9abc-def0-123456789012",
+      "name": "Delete Video File (Optional)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2440,
+        100
+      ],
+      "disabled": true,
+      "notes": "Desabilite este nó se quiser manter os arquivos no servidor"
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Extract YouTube URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract YouTube URL": {
+      "main": [
+        [
+          {
+            "node": "Get Video Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video Info": {
+      "main": [
+        [
+          {
+            "node": "Video Info Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Info Valid?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Video Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Info Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Video Data": {
+      "main": [
+        [
+          {
+            "node": "Send Info Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Info Message": {
+      "main": [
+        [
+          {
+            "node": "Download Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Video": {
+      "main": [
+        [
+          {
+            "node": "Download Success?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Success?": {
+      "main": [
+        [
+          {
+            "node": "Get Video File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Download Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video File": {
+      "main": [
+        [
+          {
+            "node": "Send Success Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Success Message": {
+      "main": [
+        [
+          {
+            "node": "Delete Video File (Optional)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-24T13:30:00.000Z",
+  "versionId": "1"
+}
