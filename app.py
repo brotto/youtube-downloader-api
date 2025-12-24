@@ -39,8 +39,6 @@ def get_base_ydl_opts():
         'nocheckcertificate': True,
         # User-agent atualizado para navegador recente
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        # Cookies do navegador (Chrome como padrão)
-        'cookiesfrombrowser': ('chrome',),
         # Headers adicionais para parecer mais com navegador real
         'http_headers': {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
@@ -55,10 +53,11 @@ def get_base_ydl_opts():
             'Sec-Fetch-User': '?1',
             'Cache-Control': 'max-age=0',
         },
-        # Opções extras para evitar detecção
+        # Opções extras para evitar detecção - usando player client Android
         'extractor_args': {
             'youtube': {
-                'player_client': ['android', 'web'],
+                'player_client': ['android', 'ios', 'web'],
+                'player_skip': ['webpage', 'configs'],
                 'skip': ['dash', 'hls'],
             }
         },
