@@ -31,34 +31,17 @@ Path(DOWNLOAD_DIR).mkdir(parents=True, exist_ok=True)
 def get_base_ydl_opts():
     """
     Retorna opções base do yt-dlp com configurações anti-bot
+    Usa apenas Android client para evitar bloqueios do YouTube
     """
     return {
         'quiet': False,
         'no_warnings': False,
         'extract_flat': False,
         'nocheckcertificate': True,
-        # User-agent atualizado para navegador recente
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        # Headers adicionais para parecer mais com navegador real
-        'http_headers': {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none',
-            'Sec-Fetch-User': '?1',
-            'Cache-Control': 'max-age=0',
-        },
-        # Opções extras para evitar detecção - usando player client Android
+        # Forçar uso do client Android (mais confiável)
         'extractor_args': {
             'youtube': {
-                'player_client': ['android', 'ios', 'web'],
-                'player_skip': ['webpage', 'configs'],
-                'skip': ['dash', 'hls'],
+                'player_client': ['android'],
             }
         },
     }
