@@ -28,6 +28,43 @@ DOWNLOAD_DIR = os.getenv('DOWNLOAD_DIR', './downloads')
 Path(DOWNLOAD_DIR).mkdir(parents=True, exist_ok=True)
 
 
+def get_base_ydl_opts():
+    """
+    Retorna opções base do yt-dlp com configurações anti-bot
+    """
+    return {
+        'quiet': False,
+        'no_warnings': False,
+        'extract_flat': False,
+        'nocheckcertificate': True,
+        # User-agent atualizado para navegador recente
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        # Cookies do navegador (Chrome como padrão)
+        'cookiesfrombrowser': ('chrome',),
+        # Headers adicionais para parecer mais com navegador real
+        'http_headers': {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Cache-Control': 'max-age=0',
+        },
+        # Opções extras para evitar detecção
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'web'],
+                'skip': ['dash', 'hls'],
+            }
+        },
+    }
+
+
 def download_video(url, output_path=DOWNLOAD_DIR, format_type='best'):
     """
     Faz download de vídeo do YouTube
@@ -41,14 +78,8 @@ def download_video(url, output_path=DOWNLOAD_DIR, format_type='best'):
         dict com informações do download
     """
     try:
-        ydl_opts = {
-            'outtmpl': os.path.join(output_path, '%(title)s.%(ext)s'),
-            'quiet': False,
-            'no_warnings': False,
-            'extract_flat': False,
-            'nocheckcertificate': True,
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        }
+        ydl_opts = get_base_ydl_opts()
+        ydl_opts['outtmpl'] = os.path.join(output_path, '%(title)s.%(ext)s')
 
         # Configurações baseadas no tipo de formato
         if format_type == 'audio':
@@ -167,12 +198,9 @@ def get_info():
 
         url = data['url']
 
-        ydl_opts = {
-            'quiet': True,
-            'no_warnings': True,
-            'nocheckcertificate': True,
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        }
+        ydl_opts = get_base_ydl_opts()
+        ydl_opts['quiet'] = True
+        ydl_opts['no_warnings'] = True
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
